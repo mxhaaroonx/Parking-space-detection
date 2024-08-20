@@ -11,11 +11,12 @@ with open("Carpos", "rb") as file:
 
 width, height= 107, 48
 
-def check():
+def check(imgpro):
     for p in pos:
         x,y = p
-        crop=img[y:y+height, x:x+width] #crops each block of parking space
+        crop=imgpro[y:y+height, x:x+width] #crops each block of parking space
         cv2.imshow("Croppedvideo",crop) #shows each cropped video
+        count=cv2.countNonZero(crop) #counting the amount of white pixels in each cropped image 
         
 #displaying the video feed by capturing each frames
 while True:
@@ -27,10 +28,13 @@ while True:
     
     grayimg=cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)#converting it to gray image since gray images work accurately for object detection
     blur=cv2.GaussianBlur(grayimg, (3,3),1) #smoothing out the edges
-    #converting to binary image
-    imgThres = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY_INV,25,16)
-    check()
+    
+    imgThres = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY_INV,25,16) #gives a salt and pepper sort of image to identify cars
+    imgmedian=cv2.medianBlur(imgThres,5) #removing the pixels from imgThres where slots are empty
+    kernel = np.ones((3, 3), np.uint8)#creating a matrix of size 3x3
+    imgDilate= cv2.dilate(imgThres, kernel, iterations=1)  #expanding the white areas.
+    check(imgDilate)
     for p in pos:
         cv2.rectangle(img,p,(p[0]+width,p[1]+height),(255,0,0), 2)
-    cv2.imshow("Image thres", imgThres)
+    cv2.imshow("Image thres", img)
     cv2.waitKey(10)
