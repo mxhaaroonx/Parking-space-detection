@@ -15,10 +15,19 @@ def check(imgpro):
     for p in pos:
         x,y = p
         crop=imgpro[y:y+height, x:x+width] #crops each block of parking space
-        cv2.imshow("Croppedvideo",crop) #shows each cropped video
+        #cv2.imshow("Croppedvideo",crop) #shows each cropped video
         count=cv2.countNonZero(crop) #counting the amount of white pixels in each cropped image 
+        cvzone.putTextRect(img, str(count), (x, y + height - 3), scale=1,thickness=2, offset=0) #used to display the no of white pixels 
+        if count <1200:
+            color=(0,255,0)
+            thick=5
+        else:
+            color=(0,0,255)
+            thick=3
         
-#displaying the video feed by capturing each frames
+        cv2.rectangle(img,p,(p[0]+width,p[1]+height),color, thick)
+
+#displaying the video feed 
 while True:
     
     #looping the video
@@ -34,7 +43,6 @@ while True:
     kernel = np.ones((3, 3), np.uint8)#creating a matrix of size 3x3
     imgDilate= cv2.dilate(imgThres, kernel, iterations=1)  #expanding the white areas.
     check(imgDilate)
-    for p in pos:
-        cv2.rectangle(img,p,(p[0]+width,p[1]+height),(255,0,0), 2)
+    
     cv2.imshow("Image thres", img)
     cv2.waitKey(10)
