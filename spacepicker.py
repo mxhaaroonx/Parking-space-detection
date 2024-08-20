@@ -4,17 +4,24 @@ import pickle
 
 
 width, height= 195, 70 #found out the width and height by trial and error method
-pos=[]
+try:
+    with open("Carpos", "rb") as file:
+        pos=pickle.load(file) #if pos is already available. if not done then the image will be overwritten everytime.
+except:
+    pos=[]
+
 
 def mouseclick(events, x, y, flags, params):
-    if events == cv2.EVENT_LBUTTONDOWN:
+    if events == cv2.EVENT_LBUTTONDOWN: #placing a box when you left click
         pos.append((x, y))
-    elif events == cv2.EVENT_RBUTTONDOWN:
+    elif events == cv2.EVENT_RBUTTONDOWN: #deleting if you right click
         for i, p in enumerate(pos):
             x1, y1 = p
-            if x1 <= x <= x1 + width and y1 <= y <= y1 + height:
+            if x1 <= x <= x1 + width and y1 <= y <= y1 + height: #checking if the click is within the boundary of the
                 pos.pop(i)
                 break
+    with open("Carpos", "wb") as file:
+        pickle.dump(pos,file) #dumping pos in 
 
 
 while True:
